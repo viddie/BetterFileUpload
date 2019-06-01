@@ -25,6 +25,12 @@ keyUpload = "*\\shell\\"+uploadDisplayEntry
 keyCopy = "*\\shell\\"+copyDisplayEntry
 keyCopyFolder = "Folder\\shell\\"+copyDisplayEntry
 
-installEntry(keyUpload, pathToUpload);
-installEntry(keyCopy, pathToCopy);
-installEntry(keyCopyFolder, pathToCopy);
+try:
+    installEntry(keyUpload, pathToUpload)
+    installEntry(keyCopy, pathToCopy)
+    installEntry(keyCopyFolder, pathToCopy)
+except PermissionError as e:
+    print("======== ERROR ========")
+    print("A permission error occurred.")
+    print("Please start the installation as administrator")
+    print("=======================")

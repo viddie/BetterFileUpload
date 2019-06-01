@@ -1,6 +1,7 @@
 @echo off
 where python.exe > tempFile
 set /p pythonpath=<tempFile
+del tempFile
 set folderPath=%0
 set handlerFilename=BFU_Install_ContextMenu.py
 set requirementsFilename=requirements.txt

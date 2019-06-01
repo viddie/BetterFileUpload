@@ -9,6 +9,7 @@ from win32gui import *
 import win32con
 import struct
 import time
+import traceback
 
 class WindowsBalloonTip:
     def __init__(self, title, msg):
@@ -87,12 +88,12 @@ def displayNotification(title, text):
 
 def uploadFile(path):
     params = {"key": settings['key'], "result_as": "json"}
-    files = {"file": open(path, 'rb')}
+    filename = path.split("\\")[-1]
+    filename = filename.encode("ascii", errors="ignore").decode()
+    #print("path '{}', filename '{}'".format(path, filename))
+    files = {"file": (filename, open(path, 'rb'))}
     r = requests.post(settings['upload_url'], params=params, files=files)
     return r.text
-
-# key = "*\shell\SomeKeyName"
-# handle = winreg.CreateKey(winreg.HKEY_CLASSES_ROOT, key)
 
 def parseResponse(response):
     response = json.loads(response)
@@ -107,18 +108,20 @@ def parseResponse(response):
 
 
 loadSettings(os.path.dirname(os.path.abspath(__file__))+"\\settings.txt")
-
-if(len(sys.argv) == 1):
-    Tk().withdraw()
-    path = askopenfilename()
-    if(path != ""):
+try:
+    if(len(sys.argv) == 1):
+        Tk().withdraw()
+        path = askopenfilename()
+        if(path != ""):
+            response = uploadFile(path)
+            parseResponse(response)
+    else:
+        path = sys.argv[1]
         response = uploadFile(path)
         parseResponse(response)
-else:
-    path = sys.argv[1]
-    response = uploadFile(path)
-    parseResponse(response)
-
+except Exception as err:
+    traceback.print_exc()
+    input()
 
 
 #"C:\Users\<User>\AppData\Local\Programs\Python\Python36-32\python.exe" "C:\Users\<User>\Desktop\BFU_Upload.py" "%1"
