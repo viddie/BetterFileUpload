@@ -7,14 +7,14 @@ Requirements:
 - [Python 3.x](https://www.python.org/downloads/)
 - Admin privileges
 
-In order for the desktop hooks to be registered, BFU-Desktop needs to add 3 keys to the Windows registry. To perform this **YOU NEED ADMIN PRIVILEGES**. Follow the following steps:
+In order for the desktop hooks to be registered, BFU-Desktop needs to add 3 keys to the Windows registry. To perform this, **YOU NEED ADMIN PRIVILEGES**. Follow the following steps:
 1. Clone/Download this repository
-2. Move the whole directory to the place, in which you want it installed. **Keep all files in the same directory**
+2. Move the whole directory to the place, in which you want this application to be installed. **Keep all files in the same directory**
 3. Right-click the *install.bat* -> Run as administrator
 4. Confirm the prompt
 5. **Done**
 
-If there were no error during the installation, you should see two new options popping up when right-clicking files, and one new options when right-clicking folder:
+If there were no errors during the installation, you should see two new options popping up when right-clicking files, and one new options when right-clicking folder:
 
 - BFU - Upload (Uploads the given file, copies the download URL to your clipbaord)
 - BFU - Copy path (Copies the file/folder path to your clipboard)
