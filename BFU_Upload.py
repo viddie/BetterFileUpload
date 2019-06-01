@@ -121,4 +121,4 @@ else:
 
 
 
-#"C:\Users\viddie\AppData\Local\Programs\Python\Python36-32\python.exe" "C:\Users\viddie\Desktop\BFU_Upload.py" "%1"
+#"C:\Users\<User>\AppData\Local\Programs\Python\Python36-32\python.exe" "C:\Users\<User>\Desktop\BFU_Upload.py" "%1"

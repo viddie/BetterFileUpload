@@ -3,8 +3,8 @@
 ## Installation
 
 Requirements:
-- Windows
-- Python 3.x
+- [Windows](https://www.google.de/search?source=hp&ei=WNjyXJT6FtCLmwXVpJmIAw&q=windows&oq=windows&gs_l=psy-ab.12..35i39l2j0i67l8.2094.2741..2823...2.0..0.66.460.8......0....1..gws-wiz.....6.Jn6S2XfQ3-4)
+- [Python 3.x](https://www.python.org/downloads/)
 - Admin privileges
 
 In order for the desktop hooks to be registered, BFU-Desktop needs to add 3 keys to the Windows registry. To perform this **YOU NEED ADMIN PRIVILEGES**. Follow the following steps:
@@ -22,6 +22,14 @@ If there were no error during the installation, you should see two new options p
 After uploading your first file, a settings file will be generated. In that settings file you may change the API Key from the default public key to a private one, which you can aquire from here:  
 https://file-upload.vi-home.de/api_key.php  
 The API Key needs to have upload privileges, obviously.
+
+## Uninstall
+
+- TDB
+
+## Move Installation folder
+
+You can freely move the installation folder, but you'll have to run the *install.bat* afterwards again, so that the registry keys point to the correct files.
 
 ## Access
 

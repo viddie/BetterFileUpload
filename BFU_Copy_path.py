@@ -10,4 +10,4 @@ if(len(sys.argv) == 2):
 
 
 
-#"C:\Users\viddie\AppData\Local\Programs\Python\Python36-32\python.exe" "C:\Users\viddie\Desktop\path_to_clipboard.py" "%1"
+#"C:\Users\<User>\AppData\Local\Programs\Python\Python36-32\python.exe" "C:\Users\<User>\Desktop\path_to_clipboard.py" "%1"
