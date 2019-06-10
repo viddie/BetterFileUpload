@@ -57,9 +57,9 @@ settings = {}
 
 def initSettings(path):
     settings['key'] = "Y9V26iHy3OmTKIgUjMcL74GEsBNpJ1Dv"
-    settings['upload_url'] = "https://file-upload.vi-home.de/process_upload.php"
-    settings['download_url'] = "https://file-upload.vi-home.de/download?fid={}"
-    settings['direct_url'] = "https://file-upload.vi-home.de/direct?fid={}"
+    settings['upload_url'] = "https://fu.vi-home.de/process_upload.php"
+    settings['download_url'] = "https://fu.vi-home.de/view?fid={}"
+    settings['direct_url'] = "https://fu.vi-home.de/f/{}"
 
     saveSettings(path)
 
