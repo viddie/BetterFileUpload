@@ -1,65 +1,128 @@
 import sys, os
 import requests
-import pyperclip
-from tkinter import Tk
+import util
+
+from tkinter import Tk, HORIZONTAL, StringVar, Label
 from tkinter.filedialog import askopenfilename
-import json
-from win32api import *
-from win32gui import *
-import win32con
-import struct
+from tkinter.ttk import Progressbar
 import time
+import threading
+import json
+from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
+
 import traceback
 
-class WindowsBalloonTip:
-    def __init__(self, title, msg):
-        message_map = {
-                win32con.WM_DESTROY: self.OnDestroy,
-        }
-        # Register the Window class.
-        wc = WNDCLASS()
-        hinst = wc.hInstance = GetModuleHandle(None)
-        wc.lpszClassName = "PythonTaskbar"
-        wc.lpfnWndProc = message_map # could also specify a wndproc.
-        classAtom = RegisterClass(wc)
-        # Create the Window.
-        style = win32con.WS_OVERLAPPED | win32con.WS_SYSMENU
-        self.hwnd = CreateWindow( classAtom, "Taskbar", style, \
-                0, 0, win32con.CW_USEDEFAULT, win32con.CW_USEDEFAULT, \
-                0, 0, hinst, None)
-        UpdateWindow(self.hwnd)
-        iconPathName = os.path.abspath(os.path.join( sys.path[0], "balloontip.ico" ))
-        icon_flags = win32con.LR_LOADFROMFILE | win32con.LR_DEFAULTSIZE
-        try:
-           hicon = LoadImage(hinst, iconPathName, \
-                    win32con.IMAGE_ICON, 0, 0, icon_flags)
-        except:
-          hicon = LoadIcon(0, win32con.IDI_APPLICATION)
-        flags = NIF_ICON | NIF_MESSAGE | NIF_TIP
-        nid = (self.hwnd, 0, flags, win32con.WM_USER+20, hicon, "tooltip")
-        Shell_NotifyIcon(NIM_ADD, nid)
-        Shell_NotifyIcon(NIM_MODIFY, \
-                         (self.hwnd, 0, NIF_INFO, win32con.WM_USER+20,\
-                          hicon, "Balloon  tooltip",title,200,msg))
-        # self.show_balloon(title, msg)
-        time.sleep(10)
-        DestroyWindow(self.hwnd)
-    def OnDestroy(self, hwnd, msg, wparam, lparam):
-        nid = (self.hwnd, 0)
-        Shell_NotifyIcon(NIM_DELETE, nid)
-        PostQuitMessage(0) # Terminate the app.
-def balloon_tip(title, msg):
-    w=WindowsBalloonTip(msg, title)
-
-
-
 settings = {}
+
+
+class MonApp(Tk):
+    def __init__(self, path):
+        super().__init__()
+
+        self.title("Uploading "+path.split("\\")[-1])
+
+        self.row = 1
+        self.path = path
+
+
+        self.lbByteSep = Label(self, text="Loaded:")
+        self.lbByteSep.grid(row=self.row, column=0)
+
+        self.byteVar = StringVar()
+        self.lbByteProgress = Label(self, textvariable=self.byteVar)
+        self.lbByteProgress.grid(row=self.row, column=1)
+
+        self.row += 1
+
+        self.speedVar = StringVar()
+        self.lbSpeedProgress = Label(self, textvariable=self.speedVar)
+        self.lbSpeedProgress.grid(row=self.row, column=0)
+
+        self.timeLeftVar = StringVar()
+        self.lbTimeLeftProgress = Label(self, textvariable=self.timeLeftVar)
+        self.lbTimeLeftProgress.grid(row=self.row, column=1)
+
+        self.row += 1
+
+        self.progressBar = Progressbar(self, orient=HORIZONTAL, length=400,  mode='determinate')
+
+        self.lastTime = time.time()
+        self.lastLoaded = 0
+        self.avgTimeLeft = []
+        self.avgCount = 5
+
+        self.startUpload()
+
+
+    def startUpload(self):
+        def real_startUpload():
+            def progress(monitor):
+                current = monitor.bytes_read
+                max = monitor.len
+                percent = (current / max) * 100
+
+                currentTime = time.time()
+                timeDiff = currentTime - self.lastTime
+                if(timeDiff > 1):
+                    diffLoaded = current - self.lastLoaded
+                    uploadSpeedPerSecond = diffLoaded / timeDiff
+                    diffNeeded = max - current
+                    secondsLeft = diffNeeded / uploadSpeedPerSecond
+
+                    if(len(self.avgTimeLeft) == self.avgCount):
+                        self.avgTimeLeft.pop(0)
+
+                    self.avgTimeLeft.append(secondsLeft)
+
+                    average = secondsLeft if len(self.avgTimeLeft) <= self.avgCount else sum(self.avgTimeLeft) / len(self.avgTimeLeft)
+
+                    self.byteVar.set("{} / {}".format(util.formatSizeUnits(current), util.formatSizeUnits(max)))
+                    self.speedVar.set("Speed: {}/s".format(util.formatSizeUnits(uploadSpeedPerSecond)))
+                    self.timeLeftVar.set("Time left: "+util.formatTimeUnits(average))
+
+                    self.lastTime = currentTime
+                    self.lastLoaded = current
+
+                print("Progress: {} / {} --- {:.1f}%".format(current, max, percent))
+                self.progressBar['value'] = percent
+
+            self.progressBar.grid(row=0, column=0, columnspan=2)
+
+
+            url = settings['upload_url']
+            params = {"key": settings['key'], "result_as": "json"}
+            filename = self.path.split("\\")[-1]
+            filename = filename.encode("ascii", errors="ignore").decode()
+            fields = {"file": (filename, open(self.path, 'rb').read())}
+
+            encoder = MultipartEncoder(fields=fields)
+            encoderMonitor = MultipartEncoderMonitor(encoder, progress)
+
+            headers = {
+                "Connection": "Keep-Alive",
+                "Content-Type": encoderMonitor.content_type,
+                "Keep-Alive": "timeout=7200"
+            }
+
+            response = requests.post(url, data=encoderMonitor, headers=headers, params=params)
+            print("Reponse: {}".format(response.text));
+            parseResponse(response.text)
+
+            os._exit(0)
+
+
+        threading.Thread(target=real_startUpload).start()
+
+
+
+
 
 def initSettings(path):
     settings['key'] = "Y9V26iHy3OmTKIgUjMcL74GEsBNpJ1Dv"
     settings['upload_url'] = "https://fu.vi-home.de/process_upload.php"
-    settings['download_url'] = "https://fu.vi-home.de/view?fid={}"
+    settings['download_url'] = "https://fu.vi-home.de/view/{}"
     settings['direct_url'] = "https://fu.vi-home.de/f/{}"
+    settings['progressBarMBThreshold'] = 10
 
     saveSettings(path)
 
@@ -80,27 +143,35 @@ def saveSettings(path):
     with open(path, "w") as f:
         f.write(json.dumps(settings))
 
-def copyTextToClipboard(text):
-    pyperclip.copy(text)
-
 def displayNotification(title, text):
-    balloon_tip(title, text)
+    util.balloon_tip(title, text)
 
 def uploadFile(path):
+    url = settings['upload_url']
     params = {"key": settings['key'], "result_as": "json"}
     filename = path.split("\\")[-1]
     filename = filename.encode("ascii", errors="ignore").decode()
-    #print("path '{}', filename '{}'".format(path, filename))
-    files = {"file": (filename, open(path, 'rb'))}
-    r = requests.post(settings['upload_url'], params=params, files=files)
-    return r.text
+    fields = {"file": (filename, open(path, 'rb').read())}
+
+    encoder = MultipartEncoder(fields=fields)
+    encoderMonitor = MultipartEncoderMonitor(encoder, None)
+
+    headers = {
+        "Connection": "Keep-Alive",
+        "Content-Type": encoderMonitor.content_type,
+        "Keep-Alive": "timeout=7200"
+    }
+
+    response = requests.post(url, data=encoderMonitor, headers=headers, params=params)
+
+    return response.text
 
 def parseResponse(response):
     response = json.loads(response)
     if(response['errorCode'] == "OK"):
         token = response['token']
         link = settings['download_url'].format(token)
-        copyTextToClipboard(link)
+        util.copyTextToClipboard(link)
         displayNotification("Upload done", response['filename']+": "+link)
     else:
         displayNotification("Error", "Error while uploading: "+response['errorMessage'])
@@ -108,6 +179,7 @@ def parseResponse(response):
 
 
 loadSettings(os.path.dirname(os.path.abspath(__file__))+"\\settings.txt")
+# sys.argv.append("C:\\Users\\viddie\\Downloads\\ES-2019-10-ImplementierungStandards.pdf")
 try:
     if(len(sys.argv) == 1):
         Tk().withdraw()
@@ -117,8 +189,13 @@ try:
             parseResponse(response)
     else:
         path = sys.argv[1]
-        response = uploadFile(path)
-        parseResponse(response)
+        threshold = settings['progressBarMBThreshold']
+        if(os.path.getsize(path) > threshold*1024*1024):
+            app = MonApp(path)
+            app.mainloop()
+        else:
+            response = uploadFile(path)
+            parseResponse(response)
 except Exception as err:
     traceback.print_exc()
     input()

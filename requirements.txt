@@ -1,4 +1,5 @@
 pyperclip
 requests
+requests-toolbelt
 pypiwin32
 pywin32
