@@ -108,7 +108,7 @@ class MonApp(Tk):
                     average = secondsLeft if len(self.avgTimeLeft) <= self.avgCount else sum(self.avgTimeLeft) / len(self.avgTimeLeft)
 
                     self.byteVar.set("{} / {}".format(util.formatSizeUnits(current), util.formatSizeUnits(max)))
-                    self.speedVar.set("Speed: {}/s".format(util.formatSizeUnits(uploadSpeedPerSecond)))
+                    self.speedVar.set("{}/s".format(util.formatSizeUnits(uploadSpeedPerSecond)))
                     self.timeLeftVar.set("Time left: "+util.formatTimeUnits(average))
 
                     self.lastTime = currentTime
@@ -167,7 +167,6 @@ class MonApp(Tk):
                 self.displayResult("Error:", response['errorMessage'])
                 pass
 
-            #self.destroy()
 
         self.uploadButton['state']='disabled'
         threading.Thread(target=real_startUpload).start()
