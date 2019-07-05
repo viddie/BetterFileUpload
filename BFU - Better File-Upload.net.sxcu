@@ -1,0 +1,17 @@
+﻿{
+  "Version": "12.4.1",
+  "Name": "BFU - Better File-Upload.net",
+  "DestinationType": "ImageUploader, FileUploader",
+  "RequestMethod": "POST",
+  "RequestURL": "https://fu.vi-home.de/process_upload",
+  "Parameters": {
+    "key": "Y9V26iHy3OmTKIgUjMcL74GEsBNpJ1Dv",
+    "result_as": "json"
+  },
+  "Body": "MultipartFormData",
+  "Arguments": {
+    "file": "%input"
+  },
+  "FileFormName": "file",
+  "URL": "https://fu.vi-home.de/view/$json:token$"
+}

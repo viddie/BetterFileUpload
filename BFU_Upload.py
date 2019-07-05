@@ -1,6 +1,7 @@
 import sys, os
 import requests
 import util
+from util import settings
 
 from tkinter import Tk, HORIZONTAL, StringVar, Label
 from tkinter.filedialog import askopenfilename
@@ -11,8 +12,6 @@ import json
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 import traceback
-
-settings = {}
 
 
 class MonApp(Tk):
@@ -116,33 +115,6 @@ class MonApp(Tk):
 
 
 
-
-def initSettings(path):
-    settings['key'] = "Y9V26iHy3OmTKIgUjMcL74GEsBNpJ1Dv"
-    settings['upload_url'] = "https://fu.vi-home.de/process_upload.php"
-    settings['download_url'] = "https://fu.vi-home.de/view/{}"
-    settings['direct_url'] = "https://fu.vi-home.de/f/{}"
-    settings['progressBarMBThreshold'] = 10
-
-    saveSettings(path)
-
-def loadSettings(path):
-    global settings
-
-    try:
-        open(path, "r")
-    except:
-        initSettings(path)
-        return
-
-    with open(path, "r") as f:
-        line = f.readline()
-        settings = json.loads(line)
-
-def saveSettings(path):
-    with open(path, "w") as f:
-        f.write(json.dumps(settings))
-
 def displayNotification(title, text):
     util.balloon_tip(title, text)
 
@@ -177,8 +149,6 @@ def parseResponse(response):
         displayNotification("Error", "Error while uploading: "+response['errorMessage'])
         pass
 
-
-loadSettings(os.path.dirname(os.path.abspath(__file__))+"\\settings.txt")
 # sys.argv.append("C:\\Users\\viddie\\Downloads\\ES-2019-10-ImplementierungStandards.pdf")
 try:
     if(len(sys.argv) == 1):

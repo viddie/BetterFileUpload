@@ -7,6 +7,7 @@ import time
 import threading
 
 import util
+from util import settings
 
 
 class MonApp(Tk):
@@ -172,35 +173,6 @@ class MonApp(Tk):
         threading.Thread(target=real_startUpload).start()
 
 
-settings = {}
-
-def initSettings(path):
-    settings['key'] = "Y9V26iHy3OmTKIgUjMcL74GEsBNpJ1Dv"
-    settings['upload_url'] = "https://fu.vi-home.de/process_upload.php"
-    settings['download_url'] = "https://fu.vi-home.de/view?fid={}"
-    settings['direct_url'] = "https://fu.vi-home.de/f/{}"
-
-    saveSettings(path)
-
-def loadSettings(path):
-    global settings
-
-    try:
-        open(path, "r")
-    except:
-        initSettings(path)
-        return
-
-    with open(path, "r") as f:
-        line = f.readline()
-        settings = json.loads(line)
-
-def saveSettings(path):
-    with open(path, "w") as f:
-        f.write(json.dumps(settings))
-
-
-loadSettings(os.path.dirname(os.path.abspath(__file__))+"\\settings.txt")
 # sys.argv.append("C:\\Users\\viddie\\Downloads\\ES-2019-10-ImplementierungStandards.pdf")
 try:
     if(len(sys.argv) == 1):

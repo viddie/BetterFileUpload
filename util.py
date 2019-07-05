@@ -5,7 +5,7 @@ from win32gui import *
 import win32con
 import struct
 import time
-import os, sys
+import os, sys, json
 
 def formatSizeUnits(bytes):
     if (bytes >= 1073741824):
@@ -93,3 +93,33 @@ class WindowsBalloonTip:
         PostQuitMessage(0) # Terminate the app.
 def balloon_tip(title, msg):
     w=WindowsBalloonTip(msg, title)
+
+settings = {}
+
+def initSettings(path):
+    settings['key'] = "Y9V26iHy3OmTKIgUjMcL74GEsBNpJ1Dv"
+    settings['upload_url'] = "https://fu.vi-home.de/process_upload.php"
+    settings['download_url'] = "https://fu.vi-home.de/view/{}"
+    settings['direct_url'] = "https://fu.vi-home.de/f/{}"
+    settings['progressBarMBThreshold'] = 10
+
+    saveSettings(path)
+
+def loadSettings(path):
+    global settings
+
+    try:
+        open(path, "r")
+    except:
+        initSettings(path)
+        return
+
+    with open(path, "r") as f:
+        line = f.readline()
+        settings = json.loads(line)
+
+def saveSettings(path):
+    with open(path, "w") as f:
+        f.write(json.dumps(settings))
+
+loadSettings(os.path.dirname(os.path.abspath(__file__))+"\\settings.txt")
