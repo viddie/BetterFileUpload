@@ -100,7 +100,7 @@ class MonApp(Tk):
             headers = {
                 "Connection": "Keep-Alive",
                 "Content-Type": encoderMonitor.content_type,
-                "Keep-Alive": "timeout=7200"
+                "Keep-Alive": "timeout=10800"
             }
 
             response = requests.post(url, data=encoderMonitor, headers=headers, params=params)
@@ -131,7 +131,7 @@ def uploadFile(path):
     headers = {
         "Connection": "Keep-Alive",
         "Content-Type": encoderMonitor.content_type,
-        "Keep-Alive": "timeout=7200"
+        "Keep-Alive": "timeout=10800"
     }
 
     response = requests.post(url, data=encoderMonitor, headers=headers, params=params)

@@ -18,10 +18,10 @@ def formatSizeUnits(bytes):
         bytes = "{:.2f} KB".format(bytes / 1024)
 
     elif (bytes > 1):
-        bytes = bytes + ' bytes'
+        bytes = "{} bytes".format(bytes)
 
     elif (bytes == 1):
-        bytes = bytes + ' byte'
+        bytes = "{} byte".format(bytes)
 
     else:
         bytes = '0 bytes'
